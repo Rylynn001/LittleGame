@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>为你拼凑的时光 ✨</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 154, 158, 0.1) 100%),
+        linear-gradient(45deg, #f8f9fa 25%, transparent 25%),
+        linear-gradient(-45deg, #f8f9fa 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f8f9fa 75%),
+        linear-gradient(-45deg, transparent 75%, #f8f9fa 75%),
+        #ffffff;
+      background-size: 100% 100%, 60px 60px, 60px 60px, 60px 60px, 60px 60px, 100% 100%;
+      background-position: 0 0, 0 0, 30px 0, 30px -30px, 0px 30px;
+      color: #5a3e36;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 50%, rgba(255, 182, 193, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(255, 218, 224, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 40px 30px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(255, 107, 107, 0.15),
+                  0 0 0 1px rgba(255, 255, 255, 0.8);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 32px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #8b6b61;
+      margin-bottom: 25px;
+      font-weight: 300;
+      opacity: 0.9;
+    }
+
+    .upload-section {
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .upload-btn {
+      position: relative;
+      display: inline-block;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: white;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 400;
+      box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 154, 158, 0.5);
+    }
+
+    #imageInput {
+      display: none;
+    }
+
+    .board {
+      width: 360px;
+      height: 360px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 4px;
+      margin: 0 auto 25px;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 4px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(255, 154, 158, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .tile {
+      background: linear-gradient(135deg, rgba(255, 182, 193, 0.6), rgba(255, 218, 224, 0.6));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      font-weight: 300;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      touch-action: none;
+      box-shadow: 0 2px 8px rgba(255, 154, 158, 0.2);
+      background-size: 360px 360px;
+      background-repeat: no-repeat;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .tile:hover::before {
+      opacity: 1;
+    }
+
+    .tile:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px rgba(255, 154, 158, 0.4);
+    }
+
+    .tile:active {
+      transform: scale(0.98);
+    }
+
+    .empty {
+      background: rgba(255, 255, 255, 0.15);
+      cursor: default;
+      box-shadow: inset 0 2px 10px rgba(255, 154, 158, 0.15);
+    }
+
+    .empty:hover {
+      transform: none;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 400;
+      box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .info {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #8b6b61;
+      font-weight: 300;
+    }
+
+    #steps {
+      font-weight: 500;
+      color: #ff6b6b;
+      font-size: 18px;
+    }
+
+    .success {
+      color: #ff6b6b;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 500;
+      animation: fadeInScale 0.5s ease;
+      text-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+    }
+
+    @keyframes fadeInScale {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .hearts {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 20px;
+      animation: floatHeart 4s ease-in-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatHeart {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 32px rgba(255, 107, 107, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    .preview-hint {
+      font-size: 13px;
+      color: #a08b82;
+      margin-top: 10px;
+      font-weight: 300;
+    }
+
+    @media (max-width: 480px) {
+      .board {
+        width: 300px;
+        height: 300px;
+      }
+
+      .tile {
+        background-size: 300px 300px;
+        font-size: 36px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .container {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <div class="container">
+    <h1>为你拼凑的时光 ✨</h1>
+    <p class="subtitle">每一块都是关于我们的记忆</p>
+
+    <div class="info">步数：<span id="steps">0</span></div>
+    <div class="board" id="board"></div>
+
+    <div class="controls">
+      <button onclick="shuffleBoard()">🔄 重新开始</button>
+    </div>
+
+    <div class="success" id="success"></div>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const heartsContainer = document.getElementById('hearts');
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const stepsText = document.getElementById('steps');
+    const successText = document.getElementById('success');
+
+    let tiles = [1,2,3,4,5,6,7,8,null];
+    let steps = 0;
+    const uploadedImage = 'img.jpg'; // 直接使用img.jpg作为拼图图片
+
+    // 创建飘动的爱心
+    function createFloatingHearts() {
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = '❤️';
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        heart.style.animationDelay = Math.random() * 2 + 's';
+        heartsContainer.appendChild(heart);
+
+        setTimeout(() => {
+          heart.remove();
+        }, 6000);
+      }, 3000);
+    }
+
+    function renderBoard() {
+      board.innerHTML = '';
+
+      tiles.forEach((tile, index) => {
+        const div = document.createElement('div');
+
+        if (tile === null) {
+          div.className = 'tile empty';
+        } else {
+          div.className = 'tile';
+
+          // 计算当前拼图块应该显示的图片位置
+          const row = Math.floor((tile - 1) / 3);
+          const col = (tile - 1) % 3;
+          const boardSize = window.innerWidth <= 480 ? 300 : 360;
+
+          div.style.backgroundImage = `url(${uploadedImage})`;
+          div.style.backgroundPosition = `-${col * (boardSize / 3)}px -${row * (boardSize / 3)}px`;
+          div.style.backgroundSize = `${boardSize}px ${boardSize}px`;
+
+          div.addEventListener('click', () => moveTile(index));
+        }
+
+        board.appendChild(div);
+      });
+
+      stepsText.innerText = steps;
+    }
+
+    function moveTile(index) {
+      const emptyIndex = tiles.indexOf(null);
+
+      const sameRowLeft = Math.floor(index / 3) === Math.floor(emptyIndex / 3);
+
+      const canMove = (
+        (index === emptyIndex - 1 && sameRowLeft) ||
+        (index === emptyIndex + 1 && sameRowLeft) ||
+        index === emptyIndex - 3 ||
+        index === emptyIndex + 3
+      );
+
+      if (canMove) {
+        [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+        steps++;
+        renderBoard();
+        checkWin();
+      }
+    }
+
+    function shuffleBoard() {
+      successText.innerText = '';
+      steps = 0;
+
+      for (let i = 0; i < 200; i++) {
+        const emptyIndex = tiles.indexOf(null);
+        const possibleMoves = [];
+
+        const row = Math.floor(emptyIndex / 3);
+        const col = emptyIndex % 3;
+
+        if (col > 0) possibleMoves.push(emptyIndex - 1);
+        if (col < 2) possibleMoves.push(emptyIndex + 1);
+        if (row > 0) possibleMoves.push(emptyIndex - 3);
+        if (row < 2) possibleMoves.push(emptyIndex + 3);
+
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+
+        [tiles[randomMove], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[randomMove]];
+      }
+
+      renderBoard();
+    }
+
+    function checkWin() {
+      const winState = [1,2,3,4,5,6,7,8,null];
+
+      const isWin = tiles.every((value, index) => value === winState[index]);
+
+      if (isWin) {
+        successText.innerText = `🎉 太棒了！你用 ${steps} 步完成了拼图 💕`;
+        celebrateWin();
+      }
+    }
+
+    function celebrateWin() {
+      // 胜利时的庆祝效果 - 爱心雨
+      const heartEmojis = ['💖', '💕', '💗', '💓', '💝', '❤️', '🌟', '✨'];
+
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.innerHTML = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+          heart.style.left = Math.random() * 100 + '%';
+          heart.style.fontSize = (Math.random() * 25 + 20) + 'px';
+          heart.style.animationDuration = (Math.random() * 1.5 + 2) + 's';
+          heartsContainer.appendChild(heart);
+
+          setTimeout(() => {
+            heart.remove();
+          }, 4000);
+        }, i * 50);
+      }
+
+      // 拼图板闪烁效果
+      board.style.animation = 'pulse 0.5s ease-in-out 3';
+    }
+
+    board.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    });
+
+    board.addEventListener('touchend', (e) => {
+      const touch = e.changedTouches[0];
+
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      const emptyIndex = tiles.indexOf(null);
+      const row = Math.floor(emptyIndex / 3);
+      const col = emptyIndex % 3;
+
+      let targetIndex = -1;
+
+      if (absX > absY) {
+        if (dx > 30 && col > 0) {
+          targetIndex = emptyIndex - 1;
+        } else if (dx < -30 && col < 2) {
+          targetIndex = emptyIndex + 1;
+        }
+      } else {
+        if (dy > 30 && row > 0) {
+          targetIndex = emptyIndex - 3;
+        } else if (dy < -30 && row < 2) {
+          targetIndex = emptyIndex + 3;
+        }
+      }
+
+      if (targetIndex !== -1) {
+        moveTile(targetIndex);
+      }
+    });
+
+    // 初始化
+    createFloatingHearts();
+    renderBoard();
+    shuffleBoard();
+  </script>
+</body>
+</html>
