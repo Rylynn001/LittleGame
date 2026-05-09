@@ -337,21 +337,6 @@
     let steps = 0;
     const uploadedImage = 'img.jpg'; // 直接使用img.jpg作为拼图图片
 
-    // 预加载图片
-    const img = new Image();
-    img.onload = function() {
-      console.log('图片加载成功');
-      renderBoard();
-      shuffleBoard();
-    };
-    img.onerror = function() {
-      console.error('图片加载失败，请确保 img.jpg 文件存在');
-      // 即使加载失败也渲染，这样至少能看到数字
-      renderBoard();
-      shuffleBoard();
-    };
-    img.src = uploadedImage;
-
     // 创建飘动的爱心
     function createFloatingHearts() {
       setInterval(() => {
@@ -519,7 +504,8 @@
 
     // 初始化
     createFloatingHearts();
-    // renderBoard 和 shuffleBoard 现在在图片加载后调用
+    renderBoard();
+    shuffleBoard();
   </script>
 </body>
 </html>
